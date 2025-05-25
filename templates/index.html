@@ -1,1 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Akses Lokasi</title>
+</head>
+<body>
+  <h2>Akses Lokasi Akurat</h2>
+  <button onclick="getLocation()">Izinkan Lokasi</button>
+  <p id="status">Klik tombol di atas untuk mulai</p>
 
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, showError, {
+          enableHighAccuracy: true
+        });
+        document.getElementById("status").innerText = "Mengambil lokasi...";
+      } else {
+        document.getElementById("status").innerText = "Geolocation tidak didukung.";
+      }
+    }
+
+    function sendLocation(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      document.getElementById("status").innerText = `Lokasi kamu: ${latitude}, ${longitude}`;
+
+      fetch("/lokasi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ latitude, longitude })
+      })
+      .then(res => res.text())
+      .then(msg => console.log(msg))
+      .catch(err => console.error("Gagal kirim lokasi:", err));
+    }
+
+    function showError(error) {
+      document.getElementById("status").innerText = "Gagal: " + error.message;
+    }
+  </script>
+</body>
+</html>
